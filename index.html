@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAKO — Cinematic Prompt Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #071A33;
+            --deep: #040E1E;
+            --ghost: #102745;
+            --bone: #EDEAE3;
+            --ink-2: #B7C3D1;
+            --ink-3: #7D8FA6;
+            --line: rgba(237,234,227,.12);
+            --cyan: #5FD4E8;
+            --red: #F0524A;
+            --red-2: #FF7A6B;
+            --glass: rgba(10,28,52,.48);
+            --ease: cubic-bezier(.16, 1, .3, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--deep);
+            color: var(--bone);
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .serif { font-family: 'Instrument Serif', Georgia, serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            height: 100svh;
+            width: 100%;
+            overflow: hidden;
+            isolation: isolate;
+            background-color: var(--bg);
+        }
+
+        .hero video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hero-word {
+            position: absolute;
+            top: 9vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: clamp(120px, 26vw, 460px);
+            line-height: 0.8;
+            color: var(--ghost);
+            mix-blend-mode: lighten;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            opacity: 0;
+            letter-spacing: .02em;
+            transition: opacity 1.8s var(--ease), letter-spacing 2.6s var(--ease);
+            mask-image: linear-gradient(180deg,#000 0%,#000 40%,rgba(0,0,0,.3) 66%,transparent 88%);
+            -webkit-mask-image: linear-gradient(180deg,#000 0%,#000 40%,rgba(0,0,0,.3) 66%,transparent 88%);
+        }
+
+        .hero.is-revealed .hero-word {
+            opacity: 1;
+            letter-spacing: -.01em;
+        }
+
+        .hero-overlay-left {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--bg) 0%, var(--bg) 42%, rgba(7,26,51,0) 78%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .hero-overlay-bottom {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(4,14,30,0) 50%, var(--deep) 80%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        @keyframes biteShake {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(-4px, 3px); }
+            40% { transform: translate(3px, -3px); }
+            60% { transform: translate(-2px, 2px); }
+            80% { transform: translate(1px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .hero.bite {
+            animation: biteShake 0.5s var(--ease);
+        }
+
+        .rv {
+            opacity: 0;
+            transform: translateY(18px);
+            filter: blur(6px);
+            transition: opacity 0.9s var(--ease), transform 0.9s var(--ease), filter 0.9s var(--ease);
+            transition-delay: calc(var(--d, 0) * 90ms);
+        }
+
+        .hero.is-revealed .rv {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+
+        /* NAVIGATION */
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            z-index: 10;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+        .fin-mark { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .fin-mark svg { width: 100%; height: 100%; }
+        .brand-name { font-family: 'JetBrains Mono', monospace; font-weight: 700; letter-spacing: .28em; font-size: 15px; color: var(--bone); text-decoration: none; }
+
+        .nav-center { display: flex; gap: 32px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .14em; }
+        .nav-center a { color: var(--ink-3); text-decoration: none; transition: color 0.3s; }
+        .nav-center a:first-child { color: var(--bone); }
+        .nav-center a:hover { color: var(--bone); }
+
+        .nav-right { display: flex; align-items: center; gap: 24px; }
+        .signin-link { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .14em; color: var(--ink-2); text-decoration: none; transition: color 0.3s; }
+        .signin-link:hover { color: var(--bone); }
+
+        .pill-btn {
+            background-color: var(--bone);
+            color: var(--bg);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: .14em;
+            padding: 10px 22px;
+            border-radius: 100px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s var(--ease), background-color 0.3s, box-shadow 0.3s;
+        }
+        .pill-btn:hover { transform: translateY(-2px); background-color: #ffffff; }
+
+        .pill-btn.coral {
+            background: linear-gradient(135deg, var(--red), var(--red-2));
+            color: #fff;
+            box-shadow: 0 0 24px rgba(240,82,74,0.35);
+        }
+        .pill-btn.coral:hover { box-shadow: 0 0 36px rgba(240,82,74,0.6); }
+
+        /* DEPTH GAUGE */
+        .depth-gauge {
+            position: absolute;
+            left: 36px;
+            top: 18vh;
+            bottom: 24vh;
+            width: 46px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .depth-label { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-3); }
+        .depth-track-wrapper { position: relative; flex: 1; width: 10px; margin: 12px 0; display: flex; justify-content: center; }
+        .depth-ticks { position: absolute; top: 0; bottom: 0; width: 2px; background: repeating-linear-gradient(180deg, rgba(237,234,227,0.2), rgba(237,234,227,0.2) 2px, transparent 2px, transparent 12px); }
+        .depth-marker { position: absolute; top: 0; left: -3px; width: 16px; height: 2px; background-color: var(--cyan); box-shadow: 0 0 10px var(--cyan); transition: top 0.1s linear; }
+        .depth-readout { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--cyan); letter-spacing: .1em; transition: color 0.3s; }
+        .depth-gauge.locked .depth-readout { color: var(--red); }
+        .depth-gauge.locked .depth-marker { background-color: var(--red); box-shadow: 0 0 10px var(--red); }
+
+        /* HERO LEFT COPY */
+        .hero-content {
+            position: absolute;
+            left: clamp(76px, 8vw, 128px);
+            top: 34vh;
+            max-width: 520px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .eyebrow-wrapper { display: flex; align-items: center; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--cyan); }
+        .eyebrow-rule { width: 28px; height: 1px; background-color: var(--cyan); }
+
+        .hero-title { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(56px, 7.4vw, 118px); line-height: 0.88; font-weight: 400; color: var(--bone); }
+        .hero-title span { font-style: italic; color: var(--red-2); }
+
+        .hero-lede { font-size: 15px; line-height: 1.6; color: var(--ink-2); max-width: 440px; }
+        .hero-actions { display: flex; align-items: center; gap: 24px; margin-top: 8px; }
+
+        .arrow-circle { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.2); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; transition: transform 0.3s; }
+        .pill-btn.coral:hover .arrow-circle { transform: translateX(3px); }
+
+        .watch-link { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .14em; color: var(--bone); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: rgba(237,234,227,0.4); transition: text-decoration-color 0.3s, color 0.3s; }
+        .watch-link:hover { color: var(--cyan); text-decoration-color: var(--cyan); }
+
+        /* FROSTED DOCK */
+        .dock {
+            position: absolute;
+            bottom: 32px;
+            left: clamp(76px, 8vw, 128px);
+            right: 64px;
+            height: 110px;
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(1.3);
+            -webkit-backdrop-filter: blur(20px) saturate(1.3);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) 0.9fr;
+            gap: 1px;
+            background-clip: padding-box;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .dock-cell { background: rgba(7, 26, 51, 0.65); padding: 16px 20px; display: flex; align-items: center; gap: 16px; position: relative; }
+        .dock-thumb { width: 64px; height: 64px; border-radius: 14px; overflow: hidden; flex-shrink: 0; background: var(--deep); }
+        .dock-thumb img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.15); transition: transform 1.6s var(--ease); }
+        .hero.is-revealed .dock-thumb img { transform: scale(1); }
+
+        .dock-meta { display: flex; flex-direction: column; gap: 4px; }
+        .dock-key { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+        .dock-dot { width: 5px; height: 5px; border-radius: 50%; background-color: var(--cyan); }
+        .dock-val { font-family: 'Instrument Serif', Georgia, serif; font-size: 22px; line-height: 1; color: var(--bone); }
+
+        .dock-species { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding-left: 24px; }
+        .dock-species-name { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 20px; color: var(--ink-2); }
+
+        .replay-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            letter-spacing: .18em;
+            color: var(--bone);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--line);
+            padding: 6px 12px;
+            border-radius: 100px;
+            cursor: pointer;
+            margin-top: 6px;
+            width: fit-content;
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+        .replay-pill:hover { background: rgba(255,255,255,0.18); border-color: var(--cyan); color: var(--cyan); }
+
+        /* SHARK LIBRARY SECTION */
+        .library-section { padding: 110px clamp(16px, 5vw, 64px); background: #06142A; border-top: 1px solid var(--line); position: relative; z-index: 20; }
+        .library-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; margin-bottom: 36px; }
+        .library-title { font: 400 clamp(42px, 5.4vw, 76px)/.95 'Instrument Serif', Georgia, serif; color: var(--bone); }
+        .library-title em { color: var(--cyan); font-style: italic; }
+        .library-copy { max-width: 420px; color: var(--ink-2); line-height: 1.65; font-size: 14px; }
+
+        .library-tools { display: flex; gap: 12px; margin: 32px 0 28px; flex-wrap: wrap; }
+        .library-search, .library-filter {
+            min-height: 48px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0 20px;
+            color: var(--bone);
+            background: rgba(10, 28, 52, 0.85);
+            font: 12px 'JetBrains Mono', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .library-search { flex: 1; min-width: 240px; }
+        .library-search:focus, .library-filter:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(95,212,232,0.15); }
+
+        .shark-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+        .shark-card {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: rgba(10, 28, 52, 0.55);
+            transition: transform 0.4s var(--ease), border-color 0.4s, box-shadow 0.4s;
+        }
+        .shark-card:hover { transform: translateY(-6px); border-color: rgba(95, 212, 232, 0.4); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+
+        .shark-photo { height: 230px; position: relative; overflow: hidden; background: radial-gradient(circle at 70% 30%, #235071, #071A33 65%); }
+        .shark-photo img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.88; transition: transform 0.7s var(--ease), opacity 0.4s; }
+        .shark-card:hover .shark-photo img { transform: scale(1.07); opacity: 1; }
+
+        .shark-number { position: absolute; top: 14px; left: 14px; padding: 7px 12px; border: 1px solid rgba(237,234,227,0.22); border-radius: 99px; background: rgba(4,14,30,0.75); font: 10px 'JetBrains Mono', monospace; letter-spacing: .12em; backdrop-filter: blur(8px); }
+        .shark-info { padding: 24px; }
+        .shark-scientific { color: var(--cyan); font: italic 14px 'Instrument Serif', Georgia, serif; }
+        .shark-name { font: 400 32px/1.05 'Instrument Serif', Georgia, serif; margin: 6px 0 10px; color: var(--bone); }
+        .shark-desc { min-height: 44px; color: var(--ink-2); font-size: 13px; line-height: 1.6; }
+
+        .shark-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+        .shark-tag { color: var(--ink-3); font: 9px 'JetBrains Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
+        .shark-detail { color: var(--bone); border: 1px solid var(--line); background: transparent; border-radius: 99px; padding: 8px 14px; cursor: pointer; font: 10px 'JetBrains Mono', monospace; transition: border-color 0.3s, color 0.3s; }
+        .shark-detail:hover { border-color: var(--cyan); color: var(--cyan); }
+        .library-count { color: var(--ink-3); font: 10px 'JetBrains Mono', monospace; letter-spacing: .12em; margin-left: auto; align-self: center; }
+        .no-sharks { grid-column: 1/-1; padding: 40px; text-align: center; color: var(--ink-2); border: 1px dashed var(--line); border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+        /* BELOW THE FOLD: DIVE LOG */
+        .dive-log { background: linear-gradient(180deg, #06142A 0%, var(--deep) 50%, #06142A 100%); border-top: 1px solid var(--line); padding: 120px 64px; position: relative; z-index: 20; }
+        .dive-header { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: flex-end; margin-bottom: 64px; }
+        .dive-header-left { display: flex; flex-direction: column; gap: 16px; }
+
+        .section-kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: var(--ink-3); display: flex; align-items: center; gap: 8px; }
+        .section-kicker span { color: var(--red-2); }
+
+        .dive-title { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(40px, 5.2vw, 78px); line-height: 0.92; color: var(--bone); }
+        .dive-title i { color: var(--cyan); font-style: italic; }
+        .dive-desc { font-size: 16px; line-height: 1.6; color: var(--ink-2); max-width: 480px; padding-bottom: 8px; }
+
+        /* BENTO GRID */
+        .bento-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .bento-card {
+            background: rgba(10, 28, 52, 0.45);
+            border: 1px solid var(--line);
+            border-radius: 26px;
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: border-color 0.4s, transform 0.4s var(--ease);
+        }
+        .bento-card:hover { border-color: rgba(95,212,232,0.35); transform: translateY(-4px); }
+        .bento-card.span-2-rows { grid-row: span 2; }
+        .bento-card.span-2-cols { grid-column: span 2; }
+
+        .bento-top { display: flex; flex-direction: column; gap: 16px; z-index: 2; }
+        .bento-index { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--ink-3); }
+        .bento-card-title { font-family: 'Instrument Serif', Georgia, serif; font-size: 36px; line-height: 1; color: var(--bone); }
+        .bento-card-text { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+        .bento-lesson { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; color: var(--cyan); margin-top: 32px; display: flex; align-items: center; gap: 8px; z-index: 2; }
+
+        .scale-lines-panel { height: 150px; margin-top: 24px; background: var(--deep); border-radius: 16px; border: 1px solid var(--line); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+        .scale-track { display: flex; gap: 12px; white-space: nowrap; animation: driftScale 9s linear infinite; padding: 0 16px; opacity: 0.6; }
+        @keyframes driftScale { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .scale-line-item { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; color: var(--ink-3); border-left: 1px solid var(--line); padding-left: 8px; height: 40px; display: flex; align-items: flex-end; }
+        .scale-label-tag { position: absolute; bottom: 12px; left: 16px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .14em; color: var(--cyan); z-index: 3; }
+
+        .teeth-row { display: flex; gap: 8px; margin-top: 24px; }
+        .bone-triangle { width: 18px; height: 24px; background: var(--bone); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); opacity: 0.8; }
+
+        .pulsing-rings-container { position: absolute; right: 36px; bottom: 36px; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .coral-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--red); box-shadow: 0 0 12px var(--red); z-index: 2; }
+        .pulse-ring { position: absolute; border: 1px solid rgba(240,82,74,0.4); border-radius: 50%; animation: expandRing 3s linear infinite; }
+        .pulse-ring:nth-child(2) { animation-delay: 0s; }
+        .pulse-ring:nth-child(3) { animation-delay: 1s; }
+        .pulse-ring:nth-child(4) { animation-delay: 2s; }
+
+        @keyframes expandRing { 0% { width: 10px; height: 10px; opacity: 1; } 100% { width: 90px; height: 90px; opacity: 0; } }
+
+        /* STATS BAND */
+        .stats-band { background: var(--deep); border: 1px solid var(--line); border-radius: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background-clip: padding-box; margin-top: 16px; overflow: hidden; }
+        .stat-cell { background: rgba(10, 28, 52, 0.3); padding: 32px; display: flex; flex-direction: column; gap: 12px; }
+        .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--ink-3); }
+        .stat-value { font-family: 'Instrument Serif', Georgia, serif; font-size: 32px; color: var(--bone); }
+        .stat-value.coral { color: var(--red-2); font-style: italic; }
+
+        .stat-visual { margin-top: 8px; height: 6px; background: rgba(237,234,227,0.1); border-radius: 3px; position: relative; overflow: hidden; }
+        .stat-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--cyan); transition: width 1.5s var(--ease); }
+        .stat-fill.gradient-bar { width: 100%; background: linear-gradient(90deg, #102745, var(--cyan), var(--red)); }
+        .stat-marker { position: absolute; top: -3px; left: 0%; width: 2px; height: 12px; background: var(--bone); box-shadow: 0 0 6px var(--bone); transition: left 1.5s var(--ease); }
+
+        .stat-triangles { display: flex; gap: 6px; margin-top: 4px; }
+        .stat-tri { width: 10px; height: 14px; background: var(--bone); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); opacity: 0.2; transition: opacity 0.5s; }
+        .stat-tri.active { opacity: 1; box-shadow: 0 0 8px var(--cyan); }
+
+        .dive-cta-banner { margin-top: 80px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .dive-cta-title { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(36px, 4.5vw, 64px); line-height: 1.05; color: var(--bone); }
+
+        .fade-up { opacity: 0; transform: translateY(28px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
+        .fade-up.in-view { opacity: 1; transform: translateY(0); }
+
+        /* AUTH OVERLAY MODAL */
+        .auth-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(1, 7, 17, 0.82); backdrop-filter: blur(14px); padding: 20px; align-items: center; justify-content: center; }
+        .auth-overlay.open { display: flex; }
+        .auth-panel { width: min(100%, 440px); padding: 32px; border: 1px solid rgba(237,234,227,0.18); border-radius: 26px; background: #081a31; box-shadow: 0 25px 90px rgba(0,0,0,0.5); position: relative; }
+        .auth-close { position: absolute; top: 16px; right: 18px; background: transparent; color: var(--ink-2); border: 0; font-size: 26px; cursor: pointer; transition: color 0.2s; }
+        .auth-close:hover { color: var(--bone); }
+        .auth-kicker { color: var(--cyan); font: 10px 'JetBrains Mono', monospace; letter-spacing: .18em; }
+        .auth-heading { margin: 12px 0 8px; font: 400 42px/1 'Instrument Serif', Georgia, serif; }
+        .auth-note { color: var(--ink-2); font-size: 13px; line-height: 1.55; margin-bottom: 22px; }
+        .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; background: rgba(255,255,255,0.04); border-radius: 99px; margin-bottom: 20px; }
+        .auth-tab { padding: 10px; border: 0; border-radius: 99px; color: var(--ink-2); background: transparent; cursor: pointer; font: 11px 'JetBrains Mono', monospace; transition: background 0.3s, color 0.3s; }
+        .auth-tab.active { background: var(--bone); color: var(--bg); font-weight: 600; }
+        .auth-form { display: grid; gap: 14px; }
+        .auth-form label { display: grid; gap: 7px; color: var(--ink-3); font: 10px 'JetBrains Mono', monospace; letter-spacing: .1em; }
+        .auth-form input { width: 100%; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; background: rgba(4,14,30,0.85); color: var(--bone); padding: 0 14px; outline: none; font: 13px Manrope, sans-serif; transition: border-color 0.3s; }
+        .auth-form input:focus { border-color: var(--cyan); }
+        .auth-submit { border: 0; border-radius: 99px; background: linear-gradient(135deg, var(--red), var(--red-2)); color: white; min-height: 48px; cursor: pointer; font: 600 12px 'JetBrains Mono', monospace; margin-top: 6px; box-shadow: 0 0 20px rgba(240,82,74,0.3); transition: box-shadow 0.3s; }
+        .auth-submit:hover { box-shadow: 0 0 28px rgba(240,82,74,0.5); }
+        .auth-message { min-height: 18px; color: var(--cyan); font-size: 12px; line-height: 1.5; }
+        .auth-demo-warning { color: var(--ink-3); font-size: 10px; line-height: 1.5; margin-top: 14px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 980px) {
+            .nav-center, .signin-link, .depth-gauge { display: none; }
+            .hero-content { left: 24px; right: 24px; top: 28vh; }
+            .dock { left: 24px; right: 24px; grid-template-columns: 1fr 1fr; height: auto; }
+            .bento-grid { grid-template-columns: 1fr; }
+            .bento-card.span-2-rows, .bento-card.span-2-cols { grid-row: auto; grid-column: auto; }
+            .dive-header { grid-template-columns: 1fr; gap: 24px; }
+            .stats-band { grid-template-columns: repeat(2, 1fr); }
+            .dive-log { padding: 80px 24px; }
+            .shark-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 900px) {
+            .hero { height: 64svh; }
+            .hero video { object-position: 58% 60%; }
+            .hero-word { font-size: 30vw; }
+            .hero-content { position: relative; top: auto; left: 16px; right: 16px; padding-top: 40px; margin-bottom: 40px; }
+            .dock { position: relative; left: 16px; right: 16px; bottom: auto; margin-top: 24px; }
+            body { background-color: var(--bg); }
+        }
+
+        @media (max-width: 520px) {
+            .dock { grid-template-columns: 1fr; }
+            .stats-band { grid-template-columns: 1fr; }
+            .shark-grid { grid-template-columns: 1fr; }
+            nav { padding: 20px 16px; }
+            .library-section { padding: 72px 16px; }
+            .auth-panel { padding: 24px 18px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .hero-word, .rv, .fade-up { opacity: 1 !important; transform: none !important; filter: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+        <video id="hero-video" src="https://thinkingods.com/demos/mako-hero/hero.mp4" muted playsinline preload="auto"></video>
+        <div class="hero-word" id="hero-word">MAKO</div>
+        <div class="hero-overlay-left"></div>
+        <div class="hero-overlay-bottom"></div>
+
+        <nav>
+            <div class="nav-left">
+                <a href="#" class="fin-mark">
+                    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2L22 24H6L14 2Z" fill="#EDEAE3"/>
+                        <path d="M14 8L19 22H9L14 8Z" fill="#F0524A"/>
+                    </svg>
+                </a>
+                <a href="#" class="brand-name">MAKO</a>
+            </div>
+            <div class="nav-center">
+                <a href="#" style="--d:0" class="rv">LIBRARY</a>
+                <a href="#" style="--d:1" class="rv">TEMPLATES</a>
+                <a href="#" style="--d:1" class="rv">PROMPTS</a>
+                <a href="#" style="--d:1" class="rv">PRICING</a>
+            </div>
+            <div class="nav-right">
+                <a href="#" style="--d:0" class="signin-link rv" data-auth-open="login">SIGN IN</a>
+                <a href="#auth" style="--d:1" class="pill-btn rv" data-auth-open="register">GET ACCESS</a>
+            </div>
+        </nav>
+
+        <div class="depth-gauge" id="depth-gauge">
+            <span class="depth-label">DEPTH</span>
+            <div class="depth-track-wrapper">
+                <div class="depth-ticks"></div>
+                <div class="depth-marker" id="depth-marker"></div>
+            </div>
+            <span class="depth-readout" id="depth-readout">000m</span>
+        </div>
+
+        <div class="hero-content">
+            <div class="eyebrow-wrapper rv" style="--d: 2;">
+                <div class="eyebrow-rule"></div>
+                <span>CINEMATIC PROMPT LIBRARY · DROP 02</span>
+            </div>
+            <h1 class="hero-title rv" style="--d: 3;">Websites <span>that bite.</span></h1>
+            <p class="hero-lede rv" style="--d: 4;">Video-first hero templates and copy-paste prompts. Drop in one clip, paste one prompt, and ship a page nobody scrolls past.</p>
+            <div class="hero-actions rv" style="--d: 5;">
+                <a href="#auth" data-auth-open="register" class="pill-btn coral">
+                    Get the library
+                    <span class="arrow-circle">→</span>
+                </a>
+                <a href="#dive-log" class="watch-link">Watch the build ↗</a>
+            </div>
+        </div>
+
+        <div class="dock" id="dock">
+            <div class="dock-cell rv" style="--d: 6;">
+                <div class="dock-thumb"><img src="https://thinkingods.com/demos/mako-hero/thumb-eye.jpg" alt="Mako Eye"></div>
+                <div class="dock-meta">
+                    <div class="dock-key"><span class="dock-dot"></span>PROMPTS</div>
+                    <div class="dock-val serif">Copy · Paste</div>
+                </div>
+            </div>
+            <div class="dock-cell rv" style="--d: 7;">
+                <div class="dock-thumb"><img src="https://thinkingods.com/demos/mako-hero/thumb-jaw.jpg" alt="Mako Jaw"></div>
+                <div class="dock-meta">
+                    <div class="dock-key"><span class="dock-dot" style="background-color: var(--bone);"></span>MOTION</div>
+                    <div class="dock-val serif">60fps</div>
+                </div>
+            </div>
+            <div class="dock-cell rv" style="--d: 8;">
+                <div class="dock-thumb"><img src="https://thinkingods.com/demos/mako-hero/thumb-tail.jpg" alt="Mako Tail"></div>
+                <div class="dock-meta">
+                    <div class="dock-key"><span class="dock-dot" style="background-color: var(--red-2);"></span>VIDEO</div>
+                    <div class="dock-val serif">One take</div>
+                </div>
+            </div>
+            <div class="dock-cell rv" style="--d: 9;">
+                <div class="dock-species">
+                    <div class="dock-key">SPECIES 02</div>
+                    <div class="dock-species-name serif">Isurus oxyrinchus</div>
+                    <button class="replay-pill" id="replay-btn" type="button">↺ REPLAY</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SHARK LIBRARY SECTION -->
+    <section class="library-section" id="library">
+        <div class="library-top fade-up">
+            <div>
+                <div class="section-kicker"><span>03</span> SPECIES INDEX — THE LIBRARY</div>
+                <h2 class="library-title">Not just one shark.<br><em>A whole ocean.</em></h2>
+            </div>
+            <p class="library-copy">Explore a growing field guide of shark species. Search by name or habitat, filter the collection, and open a quick field note for each one.</p>
+        </div>
+        <div class="library-tools fade-up">
+            <input class="library-search" id="shark-search" type="search" placeholder="SEARCH SPECIES / HABITAT..." aria-label="Search shark species">
+            <select class="library-filter" id="shark-filter" aria-label="Filter sharks by habitat">
+                <option value="all">ALL HABITATS</option>
+                <option value="open-ocean">OPEN OCEAN</option>
+                <option value="coastal">COASTAL</option>
+                <option value="deep-sea">DEEP SEA</option>
+                <option value="reef">REEF / TROPICAL</option>
+            </select>
+            <span class="library-count" id="shark-count">08 SPECIES</span>
+        </div>
+        <div class="shark-grid" id="shark-grid">
+            <article class="shark-card fade-up" data-name="mako shortfin mako isurus oxyrinchus" data-habitat="open-ocean" data-title="Shortfin mako" data-scientific="Isurus oxyrinchus" data-fact="One of the fastest sharks, built for powerful bursts in open water. It is an active predator with a streamlined body and a pointed snout.">
+                <div class="shark-photo"><img loading="lazy" src="https://thinkingods.com/demos/mako-hero/thumb-jaw.jpg" alt="Shortfin mako"><span class="shark-number">SPECIES 01</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Isurus oxyrinchus</div>
+                    <h3 class="shark-name">Shortfin mako</h3>
+                    <p class="shark-desc">Built for speed, with a streamlined body and powerful tail.</p>
+                    <div class="shark-foot"><span class="shark-tag">Open ocean</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="great white white shark carcharodon carcharias" data-habitat="coastal" data-title="Great white" data-scientific="Carcharodon carcharias" data-fact="A large predatory shark found in cool and temperate seas. Its countershaded body helps it blend with the water when viewed from above or below.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/5/56/White_shark.jpg" alt="Great white"><span class="shark-number">SPECIES 02</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Carcharodon carcharias</div>
+                    <h3 class="shark-name">Great white</h3>
+                    <p class="shark-desc">A powerful hunter with a contrasting grey back and pale underside.</p>
+                    <div class="shark-foot"><span class="shark-tag">Coastal / offshore</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="whale shark rhincodon typus" data-habitat="open-ocean" data-title="Whale shark" data-scientific="Rhincodon typus" data-fact="The largest living fish. Despite its size, it feeds mainly by filtering tiny organisms and small fish from the water.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Whale_shark_Georgia_aquarium.jpg" alt="Whale shark"><span class="shark-number">SPECIES 03</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Rhincodon typus</div>
+                    <h3 class="shark-name">Whale shark</h3>
+                    <p class="shark-desc">A gentle giant whose spotted pattern is unique to each individual.</p>
+                    <div class="shark-foot"><span class="shark-tag">Warm open water</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="hammerhead scalloped hammerhead sphyrna lewini" data-habitat="reef" data-title="Scalloped hammerhead" data-scientific="Sphyrna lewini" data-fact="Its wide, hammer-shaped head gives it a broad field of view and helps position sensory organs for detecting prey.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/e/ec/Scalloped_hammerhead_shark_off_Kaneohe_Bay.jpg" alt="Hammerhead"><span class="shark-number">SPECIES 04</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Sphyrna lewini</div>
+                    <h3 class="shark-name">Scalloped hammerhead</h3>
+                    <p class="shark-desc">Recognisable by its broad head and tendency to form schools.</p>
+                    <div class="shark-foot"><span class="shark-tag">Tropical waters</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="tiger shark galeocerdo cuvier" data-habitat="coastal" data-title="Tiger shark" data-scientific="Galeocerdo cuvier" data-fact="A large tropical and subtropical shark known for dark vertical markings, especially visible in younger individuals, and a broad diet.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Tiger_shark_at_Tiger_Beach_Bahamas.jpg" alt="Tiger shark"><span class="shark-number">SPECIES 05</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Galeocerdo cuvier</div>
+                    <h3 class="shark-name">Tiger shark</h3>
+                    <p class="shark-desc">A versatile predator with faint tiger-like stripes along its body.</p>
+                    <div class="shark-foot"><span class="shark-tag">Coastal / tropical</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="bull shark carcharhinus leucas" data-habitat="coastal" data-title="Bull shark" data-scientific="Carcharhinus leucas" data-fact="A robust coastal species that can tolerate both salt water and fresh water, allowing it to enter estuaries and some rivers.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Bull_shark_in_shallow_water.jpg" alt="Bull shark"><span class="shark-number">SPECIES 06</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Carcharhinus leucas</div>
+                    <h3 class="shark-name">Bull shark</h3>
+                    <p class="shark-desc">Stocky and adaptable, it can move between salt and fresh water.</p>
+                    <div class="shark-foot"><span class="shark-tag">Coasts / rivers</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="nurse shark ginglymostoma cirratum" data-habitat="reef" data-title="Nurse shark" data-scientific="Ginglymostoma cirratum" data-fact="A bottom-dwelling shark often resting on sandy seabeds or around reefs during the day, becoming more active at night.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/6/67/Ginglymostoma_cirratum_Bahamas_4.jpg" alt="Nurse shark"><span class="shark-number">SPECIES 07</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Ginglymostoma cirratum</div>
+                    <h3 class="shark-name">Nurse shark</h3>
+                    <p class="shark-desc">A bottom-dweller often found resting around reefs and sandy flats.</p>
+                    <div class="shark-foot"><span class="shark-tag">Reef / seabed</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+            <article class="shark-card fade-up" data-name="greenland shark somniosus microcephalus" data-habitat="deep-sea" data-title="Greenland shark" data-scientific="Somniosus microcephalus" data-fact="A slow-moving shark of cold North Atlantic and Arctic waters, known for its exceptional longevity and deep-water lifestyle.">
+                <div class="shark-photo"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/d/df/Somniosus_microcephalus.jpg" alt="Greenland shark"><span class="shark-number">SPECIES 08</span></div>
+                <div class="shark-info">
+                    <div class="shark-scientific">Somniosus microcephalus</div>
+                    <h3 class="shark-name">Greenland shark</h3>
+                    <p class="shark-desc">A slow-moving deep-water species adapted to frigid northern seas.</p>
+                    <div class="shark-foot"><span class="shark-tag">Deep / cold water</span><button class="shark-detail" type="button">FIELD NOTE ↗</button></div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- BELOW THE FOLD: DIVE LOG -->
+    <section class="dive-log" id="dive-log">
+        <div class="dive-header fade-up">
+            <div class="dive-header-left">
+                <div class="section-kicker"><span>02</span> DIVE LOG — WHY A MAKO</div>
+                <h2 class="dive-title">Built for speed, <br><i>tuned to strike once.</i></h2>
+            </div>
+            <div>
+                <p class="dive-desc">The shortfin mako is engineered end to end for one fast, decisive move. Your landing pages should operate with the exact same ruthless mechanical efficiency.</p>
+            </div>
+        </div>
+
+        <div class="bento-grid">
+            <div class="bento-card span-2-rows fade-up">
+                <div class="bento-top">
+                    <div class="bento-index">LOG 01 · MICRO-STRUCTURE</div>
+                    <h3 class="bento-card-title">Skin made of tiny teeth</h3>
+                    <p class="bento-card-text">Placoid scales create microscopic vortexes that eliminate drag, letting the water slide over the body without resistance.</p>
+                </div>
+                <div class="scale-lines-panel">
+                    <span class="scale-label-tag">WATER FLOW →</span>
+                    <div class="scale-track">
+                        <div class="scale-line-item">01 // VORTEX</div>
+                        <div class="scale-line-item">02 // LAMINAR</div>
+                        <div class="scale-line-item">03 // SHED DRAG</div>
+                        <div class="scale-line-item">04 // ZERO FRICTION</div>
+                        <div class="scale-line-item">01 // VORTEX</div>
+                        <div class="scale-line-item">02 // LAMINAR</div>
+                        <div class="scale-line-item">03 // SHED DRAG</div>
+                        <div class="scale-line-item">04 // ZERO FRICTION</div>
+                    </div>
+                </div>
+                <div class="bento-lesson">→ TEXTURE THAT DOES A JOB</div>
+            </div>
+
+            <div class="bento-card fade-up">
+                <div class="bento-top">
+                    <div class="bento-index">LOG 02 · RECEPTION</div>
+                    <h3 class="bento-card-title">A sixth sense</h3>
+                    <p class="bento-card-text">Ampullae of Lorenzini detect electromagnetic fields of prey across miles of absolute blackness.</p>
+                </div>
+                <div class="bento-lesson">→ FEEL WHAT THE USER NEEDS</div>
+            </div>
+
+            <div class="bento-card fade-up">
+                <div class="bento-top">
+                    <div class="bento-index">LOG 03 · RENEWAL</div>
+                    <h3 class="bento-card-title">Never runs out</h3>
+                    <p class="bento-card-text">Rows of serrated teeth rotate forward instantly when worn down. No hesitation, zero friction in execution.</p>
+                    <div class="teeth-row">
+                        <div class="bone-triangle"></div>
+                        <div class="bone-triangle"></div>
+                        <div class="bone-triangle"></div>
+                        <div class="bone-triangle"></div>
+                        <div class="bone-triangle"></div>
+                        <div class="bone-triangle"></div>
+                        <div class="bone-triangle"></div>
+                    </div>
+                </div>
+                <div class="bento-lesson">→ PERPETUAL COMPONENT SYSTEMS</div>
+            </div>
+
+            <div class="bento-card span-2-cols fade-up" style="position: relative;">
+                <div class="bento-top" style="max-width: 60%;">
+                    <div class="bento-index">LOG 04 · MOMENTUM</div>
+                    <h3 class="bento-card-title">It never stops moving</h3>
+                    <p class="bento-card-text">Ram ventilation forces oxygen across their gills. Stopping means suffocation; forward velocity is survival.</p>
+                </div>
+                <div class="pulsing-rings-container">
+                    <div class="coral-dot"></div>
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-ring"></div>
+                </div>
+                <div class="bento-lesson" style="margin-top: 48px;">→ SHIP BEFORE MOMENTUM DIES</div>
+            </div>
+        </div>
+
+        <div class="stats-band fade-up" id="stats-band">
+            <div class="stat-cell">
+                <span class="stat-label">LENGTH</span>
+                <div class="stat-value">~4m</div>
+                <div class="stat-visual"><div class="stat-fill" id="stat-fill-1" style="width: 0%;"></div></div>
+            </div>
+            <div class="stat-cell">
+                <span class="stat-label">BODY HEAT</span>
+                <div class="stat-value">Warm</div>
+                <div class="stat-visual"><div class="stat-fill gradient-bar"></div><div class="stat-marker" id="stat-marker-2" style="left: 0%;"></div></div>
+            </div>
+            <div class="stat-cell">
+                <span class="stat-label">TEETH</span>
+                <div class="stat-value">Endless</div>
+                <div class="stat-triangles" id="stat-triangles">
+                    <div class="stat-tri"></div><div class="stat-tri"></div><div class="stat-tri"></div><div class="stat-tri"></div><div class="stat-tri"></div><div class="stat-tri"></div>
+                </div>
+            </div>
+            <div class="stat-cell">
+                <span class="stat-label">STRIKE</span>
+                <div class="stat-value coral">One bite</div>
+                <div class="stat-label" style="font-size: 9px; color: var(--bone); opacity: 0.7;">⚡ 60mph burst vector</div>
+            </div>
+        </div>
+
+        <div class="dive-cta-banner fade-up" id="library-cta">
+            <h2 class="dive-cta-title serif">Pick a template. Paste the prompt. <br><span style="color: var(--red-2); font-style: italic;">Make it bite.</span></h2>
+            <a href="#auth" data-auth-open="register" class="pill-btn coral" style="padding: 16px 36px; font-size: 13px;">
+                Unlock the full library (Drop 02)
+                <span class="arrow-circle">→</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- AUTH MODAL -->
+    <div class="auth-overlay" id="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-heading">
+        <div class="auth-panel">
+            <button class="auth-close" id="auth-close" type="button" aria-label="Close">×</button>
+            <div class="auth-kicker">MAKO / MEMBER ACCESS</div>
+            <h2 class="auth-heading" id="auth-heading">Enter the water.</h2>
+            <p class="auth-note">Create a demo profile to save your place in the library.</p>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-register" type="button">CREATE ACCOUNT</button>
+                <button class="auth-tab" id="tab-login" type="button">SIGN IN</button>
+            </div>
+            <form class="auth-form" id="auth-form">
+                <label id="name-label">YOUR NAME<input id="auth-name" name="name" autocomplete="name" placeholder="Alex Morgan" required></label>
+                <label>EMAIL ADDRESS<input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+                <label>PASSWORD<input id="auth-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label>
+                <button class="auth-submit" id="auth-submit" type="submit">CREATE DEMO ACCOUNT ↗</button>
+                <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
+            </form>
+            <p class="auth-demo-warning">Demo mode: stores local profile state securely inside your browser's encrypted storage namespace.</p>
+        </div>
+    </div>
+
+    <script>
+        const REVEAL_AT = 5.0;
+
+        const video = document.getElementById('hero-video');
+        const hero = document.getElementById('hero');
+        const depthGauge = document.getElementById('depth-gauge');
+        const depthMarker = document.getElementById('depth-marker');
+        const depthReadout = document.getElementById('depth-readout');
+        const replayBtn = document.getElementById('replay-btn');
+
+        let isRevealed = false;
+
+        try {
+            video.addEventListener('loadeddata', () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, video.videoWidth * 0.03, video.videoHeight * 0.08, video.videoWidth * 0.04, video.videoHeight * 0.04, 0, 0, 1, 1);
+                const p = ctx.getImageData(0, 0, 1, 1).data;
+                const bgStr = `rgb(${p[0]}, ${p[1]}, ${p[2]})`;
+                const ghostR = Math.min(255, p[0] + 9);
+                const ghostG = Math.min(255, p[1] + 13);
+                const ghostB = Math.min(255, p[2] + 18);
+                const ghostStr = `rgb(${ghostR}, ${ghostG}, ${ghostB})`;
+
+                document.documentElement.style.setProperty('--bg', bgStr);
+                document.documentElement.style.setProperty('--ghost', ghostStr);
+            });
+        } catch (e) {}
+
+        function triggerReveal() {
+            if (isRevealed) return;
+            isRevealed = true;
+            hero.classList.add('is-revealed', 'bite');
+            depthGauge.classList.add('locked');
+            depthMarker.style.top = '100%';
+            depthReadout.textContent = '200m';
+
+            setTimeout(() => { hero.classList.remove('bite'); }, 650);
+        }
+
+        video.addEventListener('timeupdate', () => {
+            if (isRevealed) return;
+            const ct = video.currentTime;
+            const progress = Math.min(1, ct / REVEAL_AT);
+            
+            const depthVal = Math.round(progress * 200);
+            depthReadout.textContent = String(depthVal).padStart(3, '0') + 'm';
+            depthMarker.style.top = (progress * 100) + '%';
+
+            if (ct >= REVEAL_AT) triggerReveal();
+        });
+
+        video.addEventListener('ended', triggerReveal);
+        video.addEventListener('error', triggerReveal);
+        video.play().catch(triggerReveal);
+        setTimeout(triggerReveal, 9000);
+
+        if (video.readyState >= 2) video.play().catch(() => {});
+
+        replayBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isRevealed = false;
+            hero.classList.remove('is-revealed');
+            depthGauge.classList.remove('locked');
+            depthMarker.style.top = '0%';
+            depthReadout.textContent = '000m';
+            video.currentTime = 0;
+            video.play().catch(() => {});
+        });
+
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    if (entry.target.id === 'stats-band') {
+                        document.getElementById('stat-fill-1').style.width = '80%';
+                        document.getElementById('stat-marker-2').style.left = '72%';
+                        document.querySelectorAll('.stat-tri').forEach((tri, index) => {
+                            setTimeout(() => tri.classList.add('active'), index * 180);
+                        });
+                    }
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.18 });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // Authentication Handler System
+        const authOverlay = document.getElementById('auth-overlay');
+        const authForm = document.getElementById('auth-form');
+        const authMessage = document.getElementById('auth-message');
+        const authName = document.getElementById('auth-name');
+        const authEmail = document.getElementById('auth-email');
+        const authPassword = document.getElementById('auth-password');
+        const authHeading = document.getElementById('auth-heading');
+        const authNote = authOverlay.querySelector('.auth-note');
+        const tabRegister = document.getElementById('tab-register');
+        const tabLogin = document.getElementById('tab-login');
+        const nameLabel = document.getElementById('name-label');
+        const authSubmit = document.getElementById('auth-submit');
+        let authMode = 'register';
+
+        function setAuthMode(mode) {
+            authMode = mode;
+            authMessage.textContent = '';
+            tabRegister.classList.toggle('active', mode === 'register');
+            tabLogin.classList.toggle('active', mode === 'login');
+            nameLabel.hidden = mode === 'login';
+            authName.required = mode === 'register';
+            authPassword.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+            authHeading.textContent = mode === 'register' ? 'Enter the water.' : 'Welcome back.';
+            authNote.textContent = mode === 'register' ? 'Create a demo profile to save your place in the library.' : 'Sign in to your demo profile on this browser.';
+            authSubmit.textContent = mode === 'register' ? 'CREATE DEMO ACCOUNT ↗' : 'SIGN IN ↗';
+        }
+
+        function openAuth(mode) {
+            setAuthMode(mode || 'register');
+            authOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => (authMode === 'register' ? authName : authEmail).focus(), 50);
+        }
+
+        function closeAuth() {
+            authOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('[data-auth-open]').forEach(el => el.addEventListener('click', event => {
+            event.preventDefault();
+            openAuth(el.dataset.authOpen);
+        }));
+
+        document.getElementById('auth-close').addEventListener('click', closeAuth);
+        authOverlay.addEventListener('click', event => { if (event.target === authOverlay) closeAuth(); });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape' && authOverlay.classList.contains('open')) closeAuth(); });
+
+        tabRegister.addEventListener('click', () => setAuthMode('register'));
+        tabLogin.addEventListener('click', () => setAuthMode('login'));
+
+        async function digestPassword(password) {
+            if (!window.crypto || !crypto.subtle) return null;
+            const bytes = new TextEncoder().encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', bytes);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        authForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const email = authEmail.value.trim().toLowerCase();
+            const password = authPassword.value;
+            if (password.length < 8) { authMessage.textContent = 'Use at least 8 characters for the demo password.'; return; }
+            let users = {};
+            try { users = JSON.parse(localStorage.getItem('makoDemoUsers') || '{}'); } catch (_) { users = {}; }
+            const hash = await digestPassword(password);
+            if (!hash) { authMessage.textContent = 'Crypto module restricted. Run via secure HTTPS or localhost.'; return; }
+
+            if (authMode === 'register') {
+                if (users[email]) { authMessage.textContent = 'Email registered already. Switch to SIGN IN.'; return; }
+                users[email] = { name: authName.value.trim(), passwordHash: hash, createdAt: new Date().toISOString() };
+                try { localStorage.setItem('makoDemoUsers', JSON.stringify(users)); } catch (_) {}
+                localStorage.setItem('makoDemoSession', email);
+                authMessage.textContent = 'Profile initialized. Welcome, ' + users[email].name + '!';
+                authSubmit.textContent = 'ACCOUNT CREATED ✓';
+                setTimeout(closeAuth, 1300);
+            } else {
+                if (!users[email] || users[email].passwordHash !== hash) { authMessage.textContent = 'Invalid credentials for this browser profile.'; return; }
+                localStorage.setItem('makoDemoSession', email);
+                authMessage.textContent = 'Session restored. Welcome back, ' + users[email].name + '!';
+                setTimeout(closeAuth, 1100);
+            }
+        });
+
+        // Species Index Filter Logic
+        const sharkSearch = document.getElementById('shark-search');
+        const sharkFilter = document.getElementById('shark-filter');
+        const sharkCards = Array.from(document.querySelectorAll('.shark-card'));
+        const sharkCount = document.getElementById('shark-count');
+
+        function filterSharks() {
+            const q = sharkSearch.value.trim().toLowerCase();
+            const habitat = sharkFilter.value;
+            let visible = 0;
+            sharkCards.forEach(card => {
+                const matchesText = (card.dataset.name + ' ' + card.dataset.title + ' ' + card.dataset.scientific + ' ' + card.dataset.habitat + ' ' + card.dataset.fact).toLowerCase().includes(q);
+                const matchesHabitat = habitat === 'all' || card.dataset.habitat === habitat;
+                const show = matchesText && matchesHabitat;
+                card.hidden = !show;
+                if (show) visible++;
+            });
+            sharkCount.textContent = String(visible).padStart(2, '0') + ' SPECIES';
+            let empty = document.getElementById('no-sharks');
+            if (!visible && !empty) {
+                empty = document.createElement('p');
+                empty.id = 'no-sharks';
+                empty.className = 'no-sharks';
+                empty.textContent = 'No species match that query. Adjust your filters.';
+                document.getElementById('shark-grid').appendChild(empty);
+            }
+            if (visible && empty) empty.remove();
+        }
+
+        sharkSearch.addEventListener('input', filterSharks);
+        sharkFilter.addEventListener('change', filterSharks);
+
+        document.querySelectorAll('.shark-detail').forEach(button => button.addEventListener('click', () => {
+            const card = button.closest('.shark-card');
+            alert(card.dataset.title + '\n' + card.dataset.scientific + '\n\n' + card.dataset.fact);
+        }));
+
+        try {
+            const sessionEmail = localStorage.getItem('makoDemoSession');
+            const sessionUsers = JSON.parse(localStorage.getItem('makoDemoUsers') || '{}');
+            if (sessionEmail && sessionUsers[sessionEmail]) {
+                const signInLink = document.querySelector('.signin-link');
+                if (signInLink) {
+                    signInLink.textContent = 'HI, ' + (sessionUsers[sessionEmail].name || 'MEMBER').split(' ')[0].toUpperCase();
+                    signInLink.dataset.authOpen = 'login';
+                }
+            }
+        } catch (_) {}
+    </script>
+</body>
+</html>
