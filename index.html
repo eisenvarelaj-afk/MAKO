@@ -471,6 +471,42 @@
             }
             .hero-word, .rv, .fade-up { opacity: 1 !important; transform: none !important; filter: none !important; }
         }
+
+        /* PROMPT LIBRARY — real, copyable starter collection */
+        .prompt-section { padding: 120px 40px; background: linear-gradient(180deg, var(--deep), #081b31 55%, var(--deep)); border-top: 1px solid var(--line); }
+        .prompt-inner { max-width: 1320px; margin: 0 auto; }
+        .prompt-head { display:flex; justify-content:space-between; align-items:flex-end; gap:32px; margin-bottom:38px; }
+        .prompt-title { font-family:'Instrument Serif',Georgia,serif; font-size:clamp(46px,6vw,82px); font-weight:400; line-height:.98; letter-spacing:-.03em; }
+        .prompt-title em { color:var(--cyan); font-weight:400; }
+        .prompt-intro { max-width:410px; color:var(--ink-2); font-size:14px; line-height:1.8; }
+        .prompt-tools { display:grid; grid-template-columns:minmax(220px,1fr) 220px auto; gap:12px; margin-bottom:24px; }
+        .prompt-search,.prompt-filter { width:100%; border:1px solid var(--line); background:rgba(255,255,255,.035); color:var(--bone); border-radius:5px; padding:15px 16px; font:11px 'JetBrains Mono',monospace; letter-spacing:.06em; outline:none; }
+        .prompt-search:focus,.prompt-filter:focus { border-color:var(--cyan); }
+        .prompt-filter option { background:var(--deep); color:var(--bone); }
+        .prompt-total { align-self:center; color:var(--ink-3); font:10px 'JetBrains Mono',monospace; white-space:nowrap; }
+        .prompt-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+        .prompt-card { display:flex; flex-direction:column; min-height:310px; border:1px solid var(--line); background:rgba(255,255,255,.025); padding:23px; transition:border-color .25s,transform .25s,background .25s; }
+        .prompt-card:hover { border-color:rgba(95,212,232,.55); transform:translateY(-3px); background:rgba(95,212,232,.035); }
+        .prompt-card[hidden] { display:none; }
+        .prompt-card-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:22px; }
+        .prompt-category { color:var(--cyan); font:10px 'JetBrains Mono',monospace; letter-spacing:.1em; text-transform:uppercase; }
+        .prompt-number { color:var(--ink-3); font:10px 'JetBrains Mono',monospace; }
+        .prompt-card h3 { font:400 29px/1.05 'Instrument Serif',Georgia,serif; margin-bottom:12px; }
+        .prompt-card p { color:var(--ink-2); font-size:12px; line-height:1.75; }
+        .prompt-preview { margin:18px 0 22px; padding:14px; border-left:2px solid var(--red); background:rgba(0,0,0,.16); color:#d0d9e3; font:11px/1.7 'JetBrains Mono',monospace; max-height:92px; overflow:hidden; }
+        .prompt-card-actions { display:flex; gap:10px; align-items:center; margin-top:auto; }
+        .prompt-copy { border:0; border-radius:99px; background:var(--bone); color:var(--deep); padding:12px 17px; cursor:pointer; font:10px 'JetBrains Mono',monospace; letter-spacing:.07em; transition:background .2s; }
+        .prompt-copy:hover { background:var(--cyan); }
+        .prompt-copy:focus-visible { outline:2px solid var(--cyan); outline-offset:3px; }
+        .prompt-hint { color:var(--ink-3); font:10px 'JetBrains Mono',monospace; }
+        .prompt-empty { grid-column:1/-1; padding:40px 0; color:var(--ink-2); }
+        .prompt-note { margin-top:24px; color:var(--ink-3); font-size:11px; line-height:1.7; }
+        .prompt-toast { position:fixed; left:50%; bottom:26px; transform:translate(-50%,20px); z-index:1000; background:var(--bone); color:var(--deep); padding:13px 18px; border-radius:99px; font:11px 'JetBrains Mono',monospace; box-shadow:0 12px 40px #0006; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; }
+        .prompt-toast.show { opacity:1; transform:translate(-50%,0); }
+        .auth-demo-warning { color:var(--ink-2); font-size:12px; line-height:1.7; margin-top:14px; }
+        @media(max-width:900px) { .prompt-section{padding:88px 24px}.prompt-head{display:block}.prompt-intro{margin-top:20px}.prompt-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.prompt-tools{grid-template-columns:1fr 190px}.prompt-total{grid-column:1/-1} }
+        @media(max-width:600px) { .prompt-section{padding:70px 18px}.prompt-grid{grid-template-columns:1fr}.prompt-tools{grid-template-columns:1fr}.prompt-total{grid-column:auto}.prompt-card{min-height:unset}.prompt-title{font-size:54px} }
+
     </style>
 </head>
 <body>
@@ -484,22 +520,22 @@
 
         <nav>
             <div class="nav-left">
-                <a href="#" class="fin-mark">
+                <a href="#hero" class="fin-mark" aria-label="MAKO home">
                     <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M14 2L22 24H6L14 2Z" fill="#EDEAE3"/>
                         <path d="M14 8L19 22H9L14 8Z" fill="#F0524A"/>
                     </svg>
                 </a>
-                <a href="#" class="brand-name">MAKO</a>
+                <a href="#hero" class="brand-name">MAKO</a>
             </div>
             <div class="nav-center">
-                <a href="#" style="--d:0" class="rv">LIBRARY</a>
-                <a href="#" style="--d:1" class="rv">TEMPLATES</a>
-                <a href="#" style="--d:1" class="rv">PROMPTS</a>
-                <a href="#" style="--d:1" class="rv">PRICING</a>
+                <a href="#prompts" style="--d:0" class="rv">LIBRARY</a>
+                <a href="#prompts" style="--d:1" class="rv">TEMPLATES</a>
+                <a href="#prompts" style="--d:1" class="rv">PROMPTS</a>
+                <a href="#pricing" style="--d:1" class="rv">PRICING</a>
             </div>
             <div class="nav-right">
-                <a href="#" style="--d:0" class="signin-link rv" data-auth-open="login">SIGN IN</a>
+                <a href="#prompts" style="--d:0" class="signin-link rv">EXPLORE</a>
                 <a href="#auth" style="--d:1" class="pill-btn rv" data-auth-open="register">GET ACCESS</a>
             </div>
         </nav>
@@ -521,7 +557,7 @@
             <h1 class="hero-title rv" style="--d: 3;">Websites <span>that bite.</span></h1>
             <p class="hero-lede rv" style="--d: 4;">Video-first hero templates and copy-paste prompts. Drop in one clip, paste one prompt, and ship a page nobody scrolls past.</p>
             <div class="hero-actions rv" style="--d: 5;">
-                <a href="#auth" data-auth-open="register" class="pill-btn coral">
+                <a href="#prompts" class="pill-btn coral">
                     Get the library
                     <span class="arrow-circle">→</span>
                 </a>
@@ -561,11 +597,82 @@
         </div>
     </section>
 
+
+    <!-- WORKING PROMPT LIBRARY -->
+    <section class="prompt-section" id="prompts" aria-labelledby="prompt-title">
+      <div class="prompt-inner">
+        <div class="prompt-head fade-up">
+          <div>
+            <div class="section-kicker"><span>01</span> THE TOOLKIT — COPY-READY PROMPTS</div>
+            <h2 class="prompt-title" id="prompt-title">Less guessing.<br><em>More making.</em></h2>
+          </div>
+          <p class="prompt-intro">A practical starter library for building cinematic websites with AI coding tools. Search by use case, preview each prompt, and copy the full instruction in one click.</p>
+        </div>
+        <div class="prompt-tools fade-up">
+          <input class="prompt-search" id="prompt-search" type="search" placeholder="SEARCH PROMPTS / STYLE / USE CASE..." aria-label="Search prompts">
+          <select class="prompt-filter" id="prompt-filter" aria-label="Filter prompts by category">
+            <option value="all">ALL CATEGORIES</option>
+            <option value="landing">LANDING PAGES</option>
+            <option value="motion">MOTION & VIDEO</option>
+            <option value="commerce">E-COMMERCE</option>
+            <option value="conversion">CONVERSION</option>
+            <option value="accessibility">ACCESSIBILITY</option>
+          </select>
+          <span class="prompt-total" id="prompt-total" aria-live="polite">06 PROMPTS</span>
+        </div>
+        <div class="prompt-grid" id="prompt-grid">
+          <article class="prompt-card" data-category="landing" data-search="cinematic landing page hero storytelling brand visual design">
+            <div class="prompt-card-top"><span class="prompt-category">Landing pages</span><span class="prompt-number">PROMPT / 001</span></div>
+            <h3>Cinematic landing page</h3>
+            <p>Build a high-impact homepage with a clear story, strong art direction, and a focused call to action.</p>
+            <div class="prompt-preview">Act as a senior creative developer. Build a cinematic, responsive landing page for [BRAND]...</div>
+            <div class="prompt-card-actions"><button class="prompt-copy" type="button" data-prompt="Act as a senior creative developer and UX strategist. Build a cinematic, responsive landing page for [BRAND], a [PRODUCT OR SERVICE] for [TARGET AUDIENCE]. Start by defining a clear visual concept, then implement the page in semantic HTML, CSS, and JavaScript. Include a strong hero with one primary CTA, a concise value proposition, proof points, product benefits, and a final CTA. Use a coherent type scale, generous spacing, subtle motion, accessible contrast, responsive layouts, and reduced-motion support. Avoid generic filler, fake testimonials, dead links, and dependencies that are not necessary. Make every visible control work. Return the complete runnable code and briefly explain how to customize it.">COPY FULL PROMPT ↗</button><span class="prompt-hint">~1 min setup</span></div>
+          </article>
+          <article class="prompt-card" data-category="motion" data-search="video hero motion animation performance reduced motion">
+            <div class="prompt-card-top"><span class="prompt-category">Motion & video</span><span class="prompt-number">PROMPT / 002</span></div>
+            <h3>Video-first hero</h3>
+            <p>Create a cinematic opening that still loads quickly and works when autoplay or video fails.</p>
+            <div class="prompt-preview">Create a full-screen video hero with a poster fallback, readable overlay, and reduced-motion behavior...</div>
+            <div class="prompt-card-actions"><button class="prompt-copy" type="button" data-prompt="Create a responsive, video-first hero for [BRAND]. Use a locally hosted or explicitly supplied video asset, a poster image fallback, muted inline playback, and a readable gradient overlay. Keep the headline and CTA in HTML rather than baked into the video. If the video fails or reduced motion is preferred, show the poster and keep all content visible. Lazy-load noncritical media, provide descriptive alt text for meaningful images, avoid layout shifts, and ensure controls remain keyboard accessible. Use subtle animation only where it supports the story. Return complete code plus an asset checklist; do not invent asset URLs.">COPY FULL PROMPT ↗</button><span class="prompt-hint">~1 min setup</span></div>
+          </article>
+          <article class="prompt-card" data-category="commerce" data-search="ecommerce shop product catalog cart checkout store">
+            <div class="prompt-card-top"><span class="prompt-category">E-commerce</span><span class="prompt-number">PROMPT / 003</span></div>
+            <h3>Storefront that sells</h3>
+            <p>Design a product experience with honest cart behavior and a clear path to checkout.</p>
+            <div class="prompt-preview">Build a storefront for [PRODUCTS] with product cards, filters, cart states, and explicit integration boundaries...</div>
+            <div class="prompt-card-actions"><button class="prompt-copy" type="button" data-prompt="Build a responsive e-commerce storefront for [BRAND] selling [PRODUCT TYPE] to [AUDIENCE]. Include product cards with real supplied images and prices, search and category filters, variant selection where relevant, cart quantity controls, subtotal, and clear empty/loading/error states. Persist a demo cart only if useful, but label it as a prototype. Do not claim orders, payments, inventory, shipping, or authentication are real unless connected to a verified backend/provider. Separate UI from integration code and document what credentials, APIs, and server-side validation are needed for production. Include mobile and accessibility checks.">COPY FULL PROMPT ↗</button><span class="prompt-hint">~2 min setup</span></div>
+          </article>
+          <article class="prompt-card" data-category="conversion" data-search="conversion landing page CTA analytics trust A B testing">
+            <div class="prompt-card-top"><span class="prompt-category">Conversion</span><span class="prompt-number">PROMPT / 004</span></div>
+            <h3>Conversion audit</h3>
+            <p>Find friction in the user journey and turn the findings into a prioritized improvement plan.</p>
+            <div class="prompt-preview">Audit this page as a conversion-focused product designer. Identify friction, ambiguity, and weak calls to action...</div>
+            <div class="prompt-card-actions"><button class="prompt-copy" type="button" data-prompt="Audit this page as a senior conversion-focused product designer: [URL OR PAGE CODE]. First describe the intended audience and primary conversion goal. Then identify friction in the first screen, value proposition, hierarchy, trust signals, forms, mobile experience, performance, and CTA flow. For each issue, provide evidence from the supplied page, expected impact, effort, and a concrete fix. Prioritize the top five changes. Never invent analytics data or user research; label assumptions and propose experiments to validate them. Finish with revised headline and CTA copy options.">COPY FULL PROMPT ↗</button><span class="prompt-hint">~1 min setup</span></div>
+          </article>
+          <article class="prompt-card" data-category="landing" data-search="design system components typography colors spacing reusable">
+            <div class="prompt-card-top"><span class="prompt-category">Landing pages</span><span class="prompt-number">PROMPT / 005</span></div>
+            <h3>Consistent design system</h3>
+            <p>Turn scattered styles into reusable tokens and components without flattening the visual identity.</p>
+            <div class="prompt-preview">Inspect the current interface and define a small design system with tokens, components, and responsive rules...</div>
+            <div class="prompt-card-actions"><button class="prompt-copy" type="button" data-prompt="Inspect the supplied website code and extract a lightweight design system. Define color tokens, typography roles, spacing scale, radii, shadows, breakpoints, focus states, and reusable button/card/form components. Preserve the existing brand identity and avoid unnecessary redesign. Replace duplicated values with CSS custom properties, consolidate repeated styles, and document component states including hover, focus, disabled, loading, and error. Check contrast and responsive behavior. Return the refactored code and a concise change summary; do not remove existing functionality.">COPY FULL PROMPT ↗</button><span class="prompt-hint">~2 min setup</span></div>
+          </article>
+          <article class="prompt-card" data-category="accessibility" data-search="accessibility WCAG keyboard screen reader reduced motion semantic HTML">
+            <div class="prompt-card-top"><span class="prompt-category">Accessibility</span><span class="prompt-number">PROMPT / 006</span></div>
+            <h3>Accessibility pass</h3>
+            <p>Improve keyboard use, semantics, contrast, and motion preferences with a focused checklist.</p>
+            <div class="prompt-preview">Review the code for accessibility issues and fix them while preserving the visual design...</div>
+            <div class="prompt-card-actions"><button class="prompt-copy" type="button" data-prompt="Review the supplied website code for practical accessibility issues, aiming toward WCAG 2.2 AA. Check semantic landmarks, heading order, link and button names, keyboard navigation, visible focus, form labels and errors, dialog focus handling, color contrast, image alternatives, touch target sizes, and prefers-reduced-motion. Fix issues directly while preserving the visual design. Do not claim formal compliance without a full audit. Return the updated code and a short checklist of what changed and what still needs manual testing with keyboard and screen reader.">COPY FULL PROMPT ↗</button><span class="prompt-hint">~1 min setup</span></div>
+          </article>
+        </div>
+        <p class="prompt-note">Starter collection · These prompts are editable starting points, not magic guarantees. Replace bracketed details before sending them to your coding assistant.</p>
+      </div>
+    </section>
+
     <!-- SHARK LIBRARY SECTION -->
     <section class="library-section" id="library">
         <div class="library-top fade-up">
             <div>
-                <div class="section-kicker"><span>03</span> SPECIES INDEX — THE LIBRARY</div>
+                <div class="section-kicker"><span>02</span> FIELD GUIDE — SHARK SPECIES</div>
                 <h2 class="library-title">Not just one shark.<br><em>A whole ocean.</em></h2>
             </div>
             <p class="library-copy">Explore a growing field guide of shark species. Search by name or habitat, filter the collection, and open a quick field note for each one.</p>
@@ -762,34 +869,33 @@
 
         <div class="dive-cta-banner fade-up" id="library-cta">
             <h2 class="dive-cta-title serif">Pick a template. Paste the prompt. <br><span style="color: var(--red-2); font-style: italic;">Make it bite.</span></h2>
-            <a href="#auth" data-auth-open="register" class="pill-btn coral" style="padding: 16px 36px; font-size: 13px;">
+            <a href="#prompts" class="pill-btn coral" style="padding: 16px 36px; font-size: 13px;">
                 Unlock the full library (Drop 02)
                 <span class="arrow-circle">→</span>
             </a>
         </div>
     </section>
 
-    <!-- AUTH MODAL -->
+
+    <section class="prompt-section" id="pricing" style="padding-top:70px;padding-bottom:70px;">
+      <div class="prompt-inner" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:30px;align-items:center;">
+        <div><div class="section-kicker"><span>03</span> ACCESS — CURRENT STATUS</div><h2 class="prompt-title">Free to explore.<br><em>Built in public.</em></h2></div>
+        <div><p class="prompt-intro">The starter prompts are free to use in this prototype. Paid plans, user accounts, saved prompts, and checkout are not live yet. No payment is collected here.</p><a href="#prompts" class="pill-btn coral" style="display:inline-flex;margin-top:22px;">BROWSE FREE PROMPTS ↗</a></div>
+      </div>
+    </section>
+
+    <!-- PROTOTYPE NOTICE: no backend account or payment integration is configured -->
     <div class="auth-overlay" id="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-heading">
-        <div class="auth-panel">
-            <button class="auth-close" id="auth-close" type="button" aria-label="Close">×</button>
-            <div class="auth-kicker">MAKO / MEMBER ACCESS</div>
-            <h2 class="auth-heading" id="auth-heading">Enter the water.</h2>
-            <p class="auth-note">Create a demo profile to save your place in the library.</p>
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-register" type="button">CREATE ACCOUNT</button>
-                <button class="auth-tab" id="tab-login" type="button">SIGN IN</button>
-            </div>
-            <form class="auth-form" id="auth-form">
-                <label id="name-label">YOUR NAME<input id="auth-name" name="name" autocomplete="name" placeholder="Alex Morgan" required></label>
-                <label>EMAIL ADDRESS<input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
-                <label>PASSWORD<input id="auth-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label>
-                <button class="auth-submit" id="auth-submit" type="submit">CREATE DEMO ACCOUNT ↗</button>
-                <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
-            </form>
-            <p class="auth-demo-warning">Demo mode: stores local profile state securely inside your browser's encrypted storage namespace.</p>
-        </div>
+      <div class="auth-panel">
+        <button class="auth-close" id="auth-close" type="button" aria-label="Close">×</button>
+        <div class="auth-kicker">MAKO / EARLY ACCESS</div>
+        <h2 class="auth-heading" id="auth-heading">The ocean is open.</h2>
+        <p class="auth-note">MAKO is currently a front-end prototype. Accounts, saved libraries, and payments are not connected yet — no password or payment details are needed here.</p>
+        <p class="auth-demo-warning">Explore the free starter prompts now. Membership and checkout should only be added after a real authentication and payment provider is configured.</p>
+        <a href="#prompts" class="pill-btn coral" id="explore-prompts" style="margin-top:22px;">EXPLORE PROMPTS ↗</a>
+      </div>
     </div>
+    <div class="prompt-toast" id="prompt-toast" role="status" aria-live="polite"></div>
 
     <script>
         const REVEAL_AT = 5.0;
@@ -881,90 +987,87 @@
 
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // Authentication Handler System
+        // Honest prototype notice: no local password storage or fake authentication.
         const authOverlay = document.getElementById('auth-overlay');
-        const authForm = document.getElementById('auth-form');
-        const authMessage = document.getElementById('auth-message');
-        const authName = document.getElementById('auth-name');
-        const authEmail = document.getElementById('auth-email');
-        const authPassword = document.getElementById('auth-password');
-        const authHeading = document.getElementById('auth-heading');
-        const authNote = authOverlay.querySelector('.auth-note');
-        const tabRegister = document.getElementById('tab-register');
-        const tabLogin = document.getElementById('tab-login');
-        const nameLabel = document.getElementById('name-label');
-        const authSubmit = document.getElementById('auth-submit');
-        let authMode = 'register';
-
-        function setAuthMode(mode) {
-            authMode = mode;
-            authMessage.textContent = '';
-            tabRegister.classList.toggle('active', mode === 'register');
-            tabLogin.classList.toggle('active', mode === 'login');
-            nameLabel.hidden = mode === 'login';
-            authName.required = mode === 'register';
-            authPassword.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
-            authHeading.textContent = mode === 'register' ? 'Enter the water.' : 'Welcome back.';
-            authNote.textContent = mode === 'register' ? 'Create a demo profile to save your place in the library.' : 'Sign in to your demo profile on this browser.';
-            authSubmit.textContent = mode === 'register' ? 'CREATE DEMO ACCOUNT ↗' : 'SIGN IN ↗';
-        }
-
-        function openAuth(mode) {
-            setAuthMode(mode || 'register');
+        function openAuth() {
             authOverlay.classList.add('open');
             document.body.style.overflow = 'hidden';
-            setTimeout(() => (authMode === 'register' ? authName : authEmail).focus(), 50);
+            document.getElementById('auth-close').focus();
         }
-
         function closeAuth() {
             authOverlay.classList.remove('open');
             document.body.style.overflow = '';
         }
-
         document.querySelectorAll('[data-auth-open]').forEach(el => el.addEventListener('click', event => {
             event.preventDefault();
-            openAuth(el.dataset.authOpen);
+            openAuth();
         }));
-
         document.getElementById('auth-close').addEventListener('click', closeAuth);
         authOverlay.addEventListener('click', event => { if (event.target === authOverlay) closeAuth(); });
         document.addEventListener('keydown', event => { if (event.key === 'Escape' && authOverlay.classList.contains('open')) closeAuth(); });
+        document.getElementById('explore-prompts').addEventListener('click', closeAuth);
 
-        tabRegister.addEventListener('click', () => setAuthMode('register'));
-        tabLogin.addEventListener('click', () => setAuthMode('login'));
-
-        async function digestPassword(password) {
-            if (!window.crypto || !crypto.subtle) return null;
-            const bytes = new TextEncoder().encode(password);
-            const hash = await crypto.subtle.digest('SHA-256', bytes);
-            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        authForm.addEventListener('submit', async event => {
-            event.preventDefault();
-            const email = authEmail.value.trim().toLowerCase();
-            const password = authPassword.value;
-            if (password.length < 8) { authMessage.textContent = 'Use at least 8 characters for the demo password.'; return; }
-            let users = {};
-            try { users = JSON.parse(localStorage.getItem('makoDemoUsers') || '{}'); } catch (_) { users = {}; }
-            const hash = await digestPassword(password);
-            if (!hash) { authMessage.textContent = 'Crypto module restricted. Run via secure HTTPS or localhost.'; return; }
-
-            if (authMode === 'register') {
-                if (users[email]) { authMessage.textContent = 'Email registered already. Switch to SIGN IN.'; return; }
-                users[email] = { name: authName.value.trim(), passwordHash: hash, createdAt: new Date().toISOString() };
-                try { localStorage.setItem('makoDemoUsers', JSON.stringify(users)); } catch (_) {}
-                localStorage.setItem('makoDemoSession', email);
-                authMessage.textContent = 'Profile initialized. Welcome, ' + users[email].name + '!';
-                authSubmit.textContent = 'ACCOUNT CREATED ✓';
-                setTimeout(closeAuth, 1300);
-            } else {
-                if (!users[email] || users[email].passwordHash !== hash) { authMessage.textContent = 'Invalid credentials for this browser profile.'; return; }
-                localStorage.setItem('makoDemoSession', email);
-                authMessage.textContent = 'Session restored. Welcome back, ' + users[email].name + '!';
-                setTimeout(closeAuth, 1100);
+        // Search, filter, and copy complete prompts.
+        const promptSearch = document.getElementById('prompt-search');
+        const promptFilter = document.getElementById('prompt-filter');
+        const promptCards = Array.from(document.querySelectorAll('.prompt-card'));
+        const promptTotal = document.getElementById('prompt-total');
+        const promptToast = document.getElementById('prompt-toast');
+        let toastTimer;
+        function filterPrompts() {
+            const query = promptSearch.value.trim().toLowerCase();
+            const category = promptFilter.value;
+            let visible = 0;
+            promptCards.forEach(card => {
+                const text = (card.dataset.search + ' ' + card.innerText).toLowerCase();
+                const show = text.includes(query) && (category === 'all' || card.dataset.category === category);
+                card.hidden = !show;
+                if (show) visible++;
+            });
+            promptTotal.textContent = String(visible).padStart(2, '0') + (visible === 1 ? ' PROMPT' : ' PROMPTS');
+            let empty = document.getElementById('no-prompts');
+            if (!visible && !empty) {
+                empty = document.createElement('p');
+                empty.id = 'no-prompts';
+                empty.className = 'prompt-empty';
+                empty.textContent = 'No prompts match that search. Try another term or category.';
+                document.getElementById('prompt-grid').appendChild(empty);
             }
-        });
+            if (visible && empty) empty.remove();
+        }
+        promptSearch.addEventListener('input', filterPrompts);
+        promptFilter.addEventListener('change', filterPrompts);
+        function showPromptToast(message) {
+            promptToast.textContent = message;
+            promptToast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => promptToast.classList.remove('show'), 2200);
+        }
+        document.querySelectorAll('.prompt-copy').forEach(button => button.addEventListener('click', async () => {
+            const prompt = button.dataset.prompt || '';
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(prompt);
+                } else {
+                    const field = document.createElement('textarea');
+                    field.value = prompt;
+                    field.setAttribute('readonly', '');
+                    field.style.position = 'fixed';
+                    field.style.opacity = '0';
+                    document.body.appendChild(field);
+                    field.select();
+                    const copied = document.execCommand('copy');
+                    field.remove();
+                    if (!copied) throw new Error('Copy unavailable');
+                }
+                const original = button.textContent;
+                button.textContent = 'COPIED ✓';
+                showPromptToast('Full prompt copied to clipboard.');
+                setTimeout(() => { button.textContent = original; }, 1800);
+            } catch (_) {
+                showPromptToast('Copy blocked by browser. Select and copy the prompt manually.');
+            }
+        }));
 
         // Species Index Filter Logic
         const sharkSearch = document.getElementById('shark-search');
