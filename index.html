@@ -1106,17 +1106,6 @@
             alert(card.dataset.title + '\n' + card.dataset.scientific + '\n\n' + card.dataset.fact);
         }));
 
-        try {
-            const sessionEmail = localStorage.getItem('makoDemoSession');
-            const sessionUsers = JSON.parse(localStorage.getItem('makoDemoUsers') || '{}');
-            if (sessionEmail && sessionUsers[sessionEmail]) {
-                const signInLink = document.querySelector('.signin-link');
-                if (signInLink) {
-                    signInLink.textContent = 'HI, ' + (sessionUsers[sessionEmail].name || 'MEMBER').split(' ')[0].toUpperCase();
-                    signInLink.dataset.authOpen = 'login';
-                }
-            }
-        } catch (_) {}
     </script>
 </body>
 </html>
